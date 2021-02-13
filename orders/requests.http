@@ -1,0 +1,5 @@
+POST /api/v1/partner/update
+{
+    "token": "685a230d187f7362a14dead1c42eb150c513578c",
+    "url": "https://partner-site.ru/files/price.yaml",
+}
