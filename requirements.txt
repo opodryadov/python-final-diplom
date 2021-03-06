@@ -12,3 +12,4 @@ PyYAML==5.4.1
 requests==2.25.1
 sqlparse==0.4.1
 urllib3==1.26.3
+ujson==4.0.2
