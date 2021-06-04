@@ -10,16 +10,18 @@ from django.http import JsonResponse
 from requests import get
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import viewsets
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
 
-from models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
+from backend.models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact, ConfirmEmailToken
-from serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
+from backend.serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer
-from signals import new_user_registered, new_order
+from backend.signals import new_user_registered, new_order
 
 
 class PartnerUpdate(APIView):
@@ -223,18 +225,21 @@ class ShopView(ListAPIView):
     serializer_class = ShopSerializer
 
 
-class ProductInfoView(APIView):
+class ProductInfoViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Класс для поиска товаров
     """
 
     throttle_scope = 'anon'
+    serializer_class = ProductInfoSerializer
+    permission_classes = [IsAuthenticated]
+    ordering = ('product')
 
-    def get(self, request, *args, **kwargs):
+    def get(self):
 
         query = Q(shop__state=True)
-        shop_id = request.query_params.get('shop_id')
-        category_id = request.query_params.get('category_id')
+        shop_id = self.request.query_params.get('shop_id')
+        category_id = self.request.query_params.get('category_id')
 
         if shop_id:
             query = query & Q(shop_id=shop_id)
@@ -242,15 +247,13 @@ class ProductInfoView(APIView):
         if category_id:
             query = query & Q(product__category_id=category_id)
 
-        # фильтруем и отбрасываем дуликаты
+        # фильтруем и отбрасываем дубликаты
         queryset = ProductInfo.objects.filter(
             query).select_related(
             'shop', 'product__category').prefetch_related(
             'product_parameters__parameter').distinct()
 
-        serializer = ProductInfoSerializer(queryset, many=True)
-
-        return Response(serializer.data)
+        return queryset
 
 
 class BasketView(APIView):
