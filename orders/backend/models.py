@@ -18,11 +18,7 @@ STATE_CHOICES = (
 USER_TYPE_CHOICES = (
     ('shop', 'Магазин'),
     ('buyer', 'Покупатель'),
-
 )
-
-
-# Create your models here.
 
 
 class UserManager(BaseUserManager):
@@ -233,10 +229,6 @@ class Order(models.Model):
 
     def __str__(self):
         return str(self.dt)
-
-    # @property
-    # def sum(self):
-    #     return self.ordered_items.aggregate(total=Sum("quantity"))["total"]
 
 
 class OrderItem(models.Model):
