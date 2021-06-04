@@ -4,7 +4,10 @@ from django_rest_passwordreset.views import reset_password_request_token, reset_
 from backend.views import PartnerUpdate, RegisterAccount, LoginAccount, CategoryView, ShopView, ProductInfoViewSet, \
     BasketView, \
     AccountDetails, ContactView, OrderView, PartnerState, PartnerOrders, ConfirmAccount
+
 from rest_framework.routers import DefaultRouter
+
+from drf_spectacular.views import SpectacularAPIView
 
 app_name = 'backend'
 
@@ -26,5 +29,6 @@ urlpatterns = [
     path('shops', ShopView.as_view(), name='shops'),
     path('basket', BasketView.as_view(), name='basket'),
     path('order', OrderView.as_view(), name='order'),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('', include(router.urls))
 ]

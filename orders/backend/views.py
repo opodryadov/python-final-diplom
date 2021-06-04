@@ -23,6 +23,8 @@ from backend.serializers import UserSerializer, CategorySerializer, ShopSerializ
     OrderItemSerializer, OrderSerializer, ContactSerializer
 from backend.signals import new_user_registered, new_order
 
+from drf_spectacular.utils import extend_schema
+
 
 class PartnerUpdate(APIView):
     """
@@ -235,6 +237,10 @@ class ProductInfoViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     ordering = ('product')
 
+    @extend_schema(
+        request=ProductInfoSerializer,
+        responses={200: ProductInfoSerializer},
+    )
     def get(self):
 
         query = Q(shop__state=True)
