@@ -15,17 +15,20 @@ from rest_framework.views import APIView
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
 
-from backend.models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
+from models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact, ConfirmEmailToken
-from backend.serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
+from serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer
-from backend.signals import new_user_registered, new_order
+from signals import new_user_registered, new_order
 
 
 class PartnerUpdate(APIView):
     """
     Класс для обновления прайса от поставщика
     """
+
+    throttle_scope = 'user'
+
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -71,10 +74,14 @@ class PartnerUpdate(APIView):
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
+
 class RegisterAccount(APIView):
     """
     Для регистрации покупателей
     """
+
+    throttle_scope = 'reg'
+
     # Регистрация методом POST
     def post(self, request, *args, **kwargs):
 
@@ -88,7 +95,6 @@ class RegisterAccount(APIView):
                 validate_password(request.data['password'])
             except Exception as password_error:
                 error_array = []
-                # noinspection PyTypeChecker
                 for item in password_error:
                     error_array.append(item)
                 return JsonResponse({'Status': False, 'Errors': {'password': error_array}})
@@ -114,6 +120,9 @@ class ConfirmAccount(APIView):
     """
     Класс для подтверждения почтового адреса
     """
+
+    throttle_scope = 'anon'
+
     # Регистрация методом POST
     def post(self, request, *args, **kwargs):
 
@@ -159,7 +168,6 @@ class AccountDetails(APIView):
                 validate_password(request.data['password'])
             except Exception as password_error:
                 error_array = []
-                # noinspection PyTypeChecker
                 for item in password_error:
                     error_array.append(item)
                 return JsonResponse({'Status': False, 'Errors': {'password': error_array}})
@@ -179,6 +187,9 @@ class LoginAccount(APIView):
     """
     Класс для авторизации пользователей
     """
+
+    throttle_scope = 'anon'
+
     # Авторизация методом POST
     def post(self, request, *args, **kwargs):
 
@@ -216,6 +227,9 @@ class ProductInfoView(APIView):
     """
     Класс для поиска товаров
     """
+
+    throttle_scope = 'anon'
+
     def get(self, request, *args, **kwargs):
 
         query = Q(shop__state=True)
@@ -243,6 +257,8 @@ class BasketView(APIView):
     """
     Класс для работы с корзиной пользователя
     """
+
+    throttle_scope = 'user'
 
     # получить корзину
     def get(self, request, *args, **kwargs):
@@ -338,6 +354,8 @@ class PartnerState(APIView):
     Класс для работы со статусом поставщика
     """
 
+    throttle_scope = 'user'
+
     # получить текущий статус
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -372,6 +390,9 @@ class PartnerOrders(APIView):
     """
     Класс для получения заказов поставщиками
     """
+
+    throttle_scope = 'user'
+
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -393,6 +414,8 @@ class ContactView(APIView):
     """
     Класс для работы с контактами покупателей
     """
+
+    throttle_scope = 'user'
 
     # получить мои контакты
     def get(self, request, *args, **kwargs):
@@ -465,6 +488,8 @@ class OrderView(APIView):
     """
     Класс для получения и размешения заказов пользователями
     """
+
+    throttle_scope = 'user'
 
     # получить мои заказы
     def get(self, request, *args, **kwargs):
