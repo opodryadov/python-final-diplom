@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_rest_passwordreset',
-
+    'drf_spectacular',
     'backend',
 ]
 
@@ -159,6 +159,14 @@ REST_FRAMEWORK = {
         'anon': '100/day',
         'user': '1000/day',
         'reg': '100/day'
-    }
+    },
 
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API Service',
+    'DESCRIPTION': 'Ordering goods for retail chains',
+    'VERSION': '1.0.0',
 }
